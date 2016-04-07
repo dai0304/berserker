@@ -1,11 +1,18 @@
 // -*- coding: utf-8; mode: groovy -*-
 
 version = currentVersion
+group = "jp.classmethod.example"
+ext.artifactId = "berserker"
+ext.defaultEncoding = "UTF-8"
 
 apply plugin: "java"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+tasks.withType(AbstractCompile) each {
+	it.options.encoding = ext.defaultEncoding
+}
+
 
 // ======== libraries ========
 repositories {
@@ -16,10 +23,21 @@ dependencies {
 	// spring
 	compile "org.springframework:spring-context-support:$springVersion"
 	
+	// loggers
+	compile "org.slf4j:slf4j-api:$slf4jVersion"
+	compile "org.slf4j:jul-to-slf4j:$slf4jVersion"
+	compile "ch.qos.logback:logback-classic:$logbackVersion"
+
 	// other
 	compile "org.projectlombok:lombok:$lombokVersion"
 	compile "com.amazonaws:aws-java-sdk-sqs:$awsJavaSdkVersion"
 	compile "javax.mail:mail:$javaMailVersion"
+	
+	// testing
+	testCompile "junit:junit:$junitVersion"
+	testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+	testCompile "org.mockito:mockito-core:$mockitoCoreVersion"
+
 }
 
 // ======== wrapper ========
