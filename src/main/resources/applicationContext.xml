@@ -9,8 +9,7 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
   <context:annotation-config />
-
-  <bean id="worker" class="jp.classmethod.example.part1.SpringQueueWorker" />
+  <context:component-scan base-package="jp.classmethod.example.part1" />
 
   <bean id="credentialsProvider" class="com.amazonaws.auth.profile.ProfileCredentialsProvider"
       c:profileName="default" />
