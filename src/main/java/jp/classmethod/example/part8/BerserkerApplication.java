@@ -30,14 +30,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @ComponentScan
-public class DataAccessSample {
+public class BerserkerApplication {
 	
-	private static Logger logger = LoggerFactory.getLogger(DataAccessSample.class);
+	private static Logger logger = LoggerFactory.getLogger(BerserkerApplication.class);
 	
 	
 	public static void main(String[] args) {
-		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(DataAccessSample.class)) {
-			DataAccessSample das = context.getBean(DataAccessSample.class);
+		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(BerserkerApplication.class)) {
+			BerserkerApplication das = context.getBean(BerserkerApplication.class);
 			das.execute();
 		}
 	}
