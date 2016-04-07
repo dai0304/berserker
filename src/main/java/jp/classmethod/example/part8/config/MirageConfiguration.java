@@ -13,9 +13,9 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part6.config;
+package jp.classmethod.example.part8.config;
 
-import jp.classmethod.example.part6.DataAccessSample;
+import jp.classmethod.example.part8.DataAccessSample;
 import jp.sf.amateras.mirage.SqlManagerImpl;
 import jp.sf.amateras.mirage.bean.BeanDescFactory;
 import jp.sf.amateras.mirage.bean.FieldPropertyExtractor;

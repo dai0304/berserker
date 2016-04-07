@@ -13,51 +13,34 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part6;
-
-import java.io.Serializable;
+package jp.classmethod.example.part8;
 
 import jp.sf.amateras.mirage.annotation.Column;
 import jp.sf.amateras.mirage.annotation.PrimaryKey;
 import jp.sf.amateras.mirage.annotation.PrimaryKey.GenerationType;
 import jp.sf.amateras.mirage.annotation.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
 import org.springframework.data.annotation.Id;
 
 @ToString
-@EqualsAndHashCode(of = "pictureId")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-@Table(name = "pictures")
-@SuppressWarnings("serial")
-public class Picture implements Serializable {
+@Table(name = "users")
+@AllArgsConstructor
+public class User {
 	
 	@Getter
+	@Setter
 	@Id
-	@PrimaryKey(generationType = GenerationType.IDENTITY)
-	@Column(name = "picture_id")
-	private long pictureId;
+	@PrimaryKey(generationType = GenerationType.APPLICATION)
+	@Column(name = "username")
+	private String username;
 	
 	@Getter
 	@Setter
-	@NonNull
-	@Column(name = "location")
-	private String location;
+	@Column(name = "password")
+	private String password;
 	
-	@Getter
-	@Setter
-	@Column(name = "event_id")
-	private long eventId;
-	
-	
-	public Picture(String location, long eventId) {
-		this.location = location;
-		this.eventId = eventId;
-	}
 }

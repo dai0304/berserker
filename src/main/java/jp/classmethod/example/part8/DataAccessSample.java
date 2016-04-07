@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part6;
+package jp.classmethod.example.part8;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
