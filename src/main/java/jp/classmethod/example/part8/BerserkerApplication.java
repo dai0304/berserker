@@ -16,6 +16,8 @@
 package jp.classmethod.example.part8;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +27,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
+@RestController
 public class BerserkerApplication implements CommandLineRunner {
 	
 	private static Logger logger = LoggerFactory.getLogger(BerserkerApplication.class);
@@ -35,7 +42,6 @@ public class BerserkerApplication implements CommandLineRunner {
 	
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(BerserkerApplication.class);
-		app.setWebEnvironment(false);
 		app.run(args);
 	}
 	
@@ -43,6 +49,17 @@ public class BerserkerApplication implements CommandLineRunner {
 	@Autowired
 	UserRepository userRepos;
 	
+	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@Transactional
+	public ResponseEntity<String> index() {
+		logger.debug("index");
+		Iterable<User> users = userRepos.findAll();
+		String result = StreamSupport.stream(users.spliterator(), false)
+			.map(Object::toString)
+			.collect(Collectors.joining(","));
+		return ResponseEntity.ok(result);
+	}
 	
 	@Override
 	@Transactional

@@ -34,6 +34,7 @@ dependencies {
 	// spring
 	compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 	compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+	compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 	compile "org.springframework.data:spring-data-mirage:$springDataMirageVersion"
 	
 	// loggers
