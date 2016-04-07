@@ -52,6 +52,6 @@ task wrapper(type: Wrapper) {
 
 // ======== run ========
 task execute(type: JavaExec, dependsOn: classes) {
-	main = "jp.classmethod.example.part5.DataAccessSample"
+	main = "jp.classmethod.example.part6.DataAccessSample"
 	classpath = sourceSets.main.runtimeClasspath
 }
