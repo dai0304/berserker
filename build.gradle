@@ -1,0 +1,6 @@
+// -*- coding: utf-8; mode: groovy -*-
+
+// ======== wrapper ========
+task wrapper(type: Wrapper) {
+	gradleVersion = "2.12"
+}
