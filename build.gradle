@@ -23,12 +23,7 @@ task wrapper(type: Wrapper) {
 }
 
 // ======== run ========
-task execute1(type: JavaExec, dependsOn: classes) {
-	main = "jp.classmethod.example.part1.Main"
-	classpath = sourceSets.main.runtimeClasspath
-}
-
-task execute2(type: JavaExec, dependsOn: classes) {
+task execute(type: JavaExec, dependsOn: classes) {
 	main = "jp.classmethod.example.part1.SpringMain"
 	classpath = sourceSets.main.runtimeClasspath
 }
