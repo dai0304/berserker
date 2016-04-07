@@ -15,13 +15,15 @@
  */
 package jp.classmethod.example.part1;
 
+import jp.classmethod.example.part1.config.AppConfig;
+
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class SpringMain {
 	
 	public static void main(String[] args) {
-		try (ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml")) {
+		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
 			SpringQueueWorker main = context.getBean(SpringQueueWorker.class);
 			main.execute();
 		}
