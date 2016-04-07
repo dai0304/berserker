@@ -13,9 +13,15 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part8;
+package jp.classmethod.example.berserker;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mirage.repository.MirageRepository;
+import org.springframework.data.repository.query.Param;
 
-public interface PictureRepository extends MirageRepository<Picture, Long> {
+public interface UserRepository extends MirageRepository<User, String> {
+	
+	Page<User> findByUsernameMaxLength(@Param("username_length") int len, Pageable pageable);
+	
 }

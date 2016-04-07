@@ -13,9 +13,9 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part8.config;
+package jp.classmethod.example.berserker.config;
 
-import jp.classmethod.example.part8.BerserkerApplication;
+import jp.classmethod.example.berserker.BerserkerApplication;
 import jp.sf.amateras.mirage.SqlManagerImpl;
 import jp.sf.amateras.mirage.bean.BeanDescFactory;
 import jp.sf.amateras.mirage.bean.FieldPropertyExtractor;
