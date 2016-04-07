@@ -15,12 +15,16 @@
  */
 package jp.classmethod.example.part5;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +63,14 @@ public class DataAccessSample {
 		logger.info("List user");
 		Iterable<User> all = userRepos.findAll();
 		for (User user : all) {
+			logger.info("  {}", user);
+		}
+		
+		logger.info("List user filtered by length");
+		Page<User> p = userRepos.findByUsernameMaxLength(6, new PageRequest(0, 2));
+		List<User> users = p.getContent();
+		assert users.size() <= 2;
+		for (User user : users) {
 			logger.info("  {}", user);
 		}
 		
