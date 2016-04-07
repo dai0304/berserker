@@ -18,6 +18,8 @@ dependencies {
 	
 	// other
 	compile "org.projectlombok:lombok:$lombokVersion"
+	compile "com.amazonaws:aws-java-sdk-sqs:$awsJavaSdkVersion"
+	compile "javax.mail:mail:$javaMailVersion"
 }
 
 // ======== wrapper ========
