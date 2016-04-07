@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package jp.classmethod.example.part4;
+package jp.classmethod.example.part5;
 
 import org.springframework.data.mirage.repository.MirageRepository;
 
