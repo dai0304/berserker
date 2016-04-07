@@ -15,11 +15,15 @@
  */
 package jp.classmethod.example.part4;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +45,27 @@ public class DataAccessSample {
 	
 	@Transactional
 	public void execute() {
-		// do some work
+		Long allUsersCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Long.class);
+		System.out.println("allUsersCount = " + allUsersCount);
+		
+		String password = jdbcTemplate.queryForObject("SELECT password FROM users WHERE username = ?", new Object[] {
+				"miyamoto"
+		}, String.class);
+		System.out.println("password = " + password);
+		
+		User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE username = ?", new Object[] {
+				"miyamoto"
+		}, new RowMapper<User>() {
+			
+			@Override
+			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setPassword(rs.getString("password"));
+				return user;
+			}
+		});
+		System.out.println("user = " + user);
+		
 	}
 }
