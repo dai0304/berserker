@@ -47,9 +47,3 @@ dependencies {
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.12"
 }
-
-// ======== run ========
-task execute(type: JavaExec, dependsOn: classes) {
-	main = "jp.classmethod.example.part1.SpringMain"
-	classpath = sourceSets.main.runtimeClasspath
-}
