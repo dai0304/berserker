@@ -3,6 +3,30 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean class="jp.classmethod.example.part1.SpringMain" />
+  <bean class="jp.classmethod.example.part1.SpringQueueWorker">
+    <property name="sqs" ref="amazonSQSClient" />
+    <property name="mailSender" ref="javaMailSenderImpl" />
+    <property name="mailTemplate" ref="templateMessage" />
+  </bean>
+
+  <bean id="amazonSQSClient" class="com.amazonaws.services.sqs.AmazonSQSClient">
+    <constructor-arg>
+      <bean class="com.amazonaws.auth.profile.ProfileCredentialsProvider">
+        <constructor-arg value="default"/>
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="smtp.example.com" />
+    <property name="port" value="25" />
+    <property name="username" value="daisuke" />
+    <property name="password" value="p@ssw0rd" />
+  </bean>
+
+  <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
+    <property name="subject" value="QueueWorker sample"/>
+    <property name="from" value="daisuke@example.com"/>
+  </bean>
 
 </beans>
