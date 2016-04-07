@@ -8,6 +8,7 @@
   </appender>
 
   <logger name="jp.classmethod.example" level="DEBUG" />
+  <logger name="jp.sf.amateras.mirage.SqlExecutor" level="WARN" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />
