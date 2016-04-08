@@ -15,6 +15,7 @@
  */
 package jp.classmethod.example.berserker.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -25,13 +26,23 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class DataSourceConfiguration {
 	
+	@Value("#{systemProperties['JDBC_CONNECTION_STRING']}")
+	String url;
+	
+	@Value("#{systemProperties['DB_USERNAME']}")
+	String username;
+	
+	@Value("#{systemProperties['DB_PASSWORD']}")
+	String password;
+	
+	
 	@Bean
 	public DriverManagerDataSource dataSource() {
 		DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
 		driverManagerDataSource.setDriverClassName(com.mysql.jdbc.Driver.class.getName());
-		driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/berserker");
-		driverManagerDataSource.setUsername("root");
-		driverManagerDataSource.setPassword("");
+		driverManagerDataSource.setUrl(url);
+		driverManagerDataSource.setUsername(username);
+		driverManagerDataSource.setPassword(password);
 		return driverManagerDataSource;
 	}
 	

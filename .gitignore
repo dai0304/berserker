@@ -6,7 +6,7 @@
 /.gradle
 
 /env/*.gradle
-/env/!_*.gradle
+!/env/_*.gradle
 
 *.iml
 /.idea

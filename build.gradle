@@ -14,6 +14,10 @@ group = "jp.classmethod.example"
 ext.artifactId = "berserker"
 ext.defaultEncoding = "UTF-8"
 
+if (hasProperty('env') == false) { ext.env = 'personal' }
+apply from: "env/${env}.gradle"
+
+
 apply plugin: "java"
 apply plugin: "spring-boot"
 
