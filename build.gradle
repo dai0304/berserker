@@ -21,3 +21,14 @@ dependencies {
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.12"
 }
+
+// ======== run ========
+task execute1(type: JavaExec, dependsOn: classes) {
+	main = "jp.classmethod.example.berserker.Main"
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task execute2(type: JavaExec, dependsOn: classes) {
+	main = "jp.classmethod.example.berserker.SpringMain"
+	classpath = sourceSets.main.runtimeClasspath
+}
