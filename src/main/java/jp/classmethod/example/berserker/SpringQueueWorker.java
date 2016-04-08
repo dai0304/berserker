@@ -18,14 +18,13 @@ package jp.classmethod.example.berserker;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Setter;
-
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
@@ -33,13 +32,13 @@ public class SpringQueueWorker {
 	
 	private static final String QUEUE_URL = "...";
 	
-	@Setter
+	@Autowired
 	private AmazonSQS sqs;
 	
-	@Setter
+	@Autowired
 	private MailSender mailSender;
 	
-	@Setter
+	@Autowired
 	private SimpleMailMessage mailTemplate;
 	
 	
