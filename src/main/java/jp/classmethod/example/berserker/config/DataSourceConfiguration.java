@@ -26,13 +26,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class DataSourceConfiguration {
 	
-	@Value("#{systemProperties['JDBC_CONNECTION_STRING']}")
+	@Value("#{systemEnvironment['JDBC_CONNECTION_STRING'] ?: systemProperties['JDBC_CONNECTION_STRING']}")
 	String url;
 	
-	@Value("#{systemProperties['DB_USERNAME']}")
+	@Value("#{systemEnvironment['DB_USERNAME'] ?: systemProperties['DB_USERNAME']}")
 	String username;
 	
-	@Value("#{systemProperties['DB_PASSWORD']}")
+	@Value("#{systemEnvironment['DB_PASSWORD'] ?: systemProperties['DB_PASSWORD']}")
 	String password;
 	
 	
