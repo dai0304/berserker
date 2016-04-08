@@ -22,12 +22,8 @@ public class SpringMain {
 	
 	public static void main(String[] args) {
 		try (ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml")) {
-			SpringMain main = context.getBean(SpringMain.class);
+			SpringQueueWorker main = context.getBean(SpringQueueWorker.class);
 			main.execute();
 		}
-	}
-	
-	private void execute() {
-		System.out.println("foo");
 	}
 }
