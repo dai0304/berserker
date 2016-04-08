@@ -15,17 +15,28 @@
  */
 package jp.classmethod.example.berserker;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import jp.classmethod.example.berserker.model.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @ComponentScan
 public class DataAccessSample {
+	
+	private static Logger logger = LoggerFactory.getLogger(DataAccessSample.class);
+	
 	
 	public static void main(String[] args) {
 		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(DataAccessSample.class)) {
@@ -41,6 +52,26 @@ public class DataAccessSample {
 	
 	@Transactional
 	public void execute() {
-		// do some work
+		Long allUsersCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Long.class);
+		logger.info("allUsersCount = {}", allUsersCount);
+		
+		String password = jdbcTemplate.queryForObject("SELECT password FROM users WHERE username = ?", new Object[] {
+				"miyamoto"
+		}, String.class);
+		logger.info("password = {}", password);
+		
+		User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE username = ?", new Object[] {
+				"miyamoto"
+		}, new RowMapper<User>() {
+			
+			@Override
+			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setPassword(rs.getString("password"));
+				return user;
+			}
+		});
+		logger.info("user = {}", user);
 	}
 }
