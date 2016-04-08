@@ -15,6 +15,9 @@ repositories {
 dependencies {
 	// spring
 	compile "org.springframework:spring-context-support:$springVersion"
+	
+	// other
+	compile "org.projectlombok:lombok:$lombokVersion"
 }
 
 // ======== wrapper ========
