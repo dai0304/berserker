@@ -15,13 +15,15 @@
  */
 package jp.classmethod.example.berserker;
 
+import jp.classmethod.example.berserker.config.AppConfig;
+
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class SpringMain {
 	
 	public static void main(String[] args) {
-		try (ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml")) {
+		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
 			SpringQueueWorker main = context.getBean(SpringQueueWorker.class);
 			main.execute();
 		}
