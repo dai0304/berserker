@@ -48,6 +48,7 @@ dependencies {
 	compile "org.projectlombok:lombok:$lombokVersion"
 	compile "javax.mail:mail:$javaMailVersion"
 	compile "mysql:mysql-connector-java:$mysqlVersion"
+	compile "org.flywaydb:flyway-core:$flywayVersion"
 	compile "com.amazonaws:aws-java-sdk-sqs:$awsJavaSdkVersion"
 	
 	// testing
