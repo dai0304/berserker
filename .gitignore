@@ -1,0 +1,12 @@
+.DS_Store
+
+/bin
+/target
+/build
+/.gradle
+
+/env/*.gradle
+!/env/_*.gradle
+
+*.iml
+/.idea
