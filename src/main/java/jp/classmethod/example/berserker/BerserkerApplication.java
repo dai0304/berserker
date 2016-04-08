@@ -23,26 +23,23 @@ import jp.classmethod.example.berserker.model.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
-@ComponentScan
-public class DataAccessSample {
+@SpringBootApplication
+public class BerserkerApplication implements CommandLineRunner {
 	
-	private static Logger logger = LoggerFactory.getLogger(DataAccessSample.class);
+	private static Logger logger = LoggerFactory.getLogger(BerserkerApplication.class);
 	
 	
 	public static void main(String[] args) {
-		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(DataAccessSample.class)) {
-			DataAccessSample das = context.getBean(DataAccessSample.class);
-			das.execute();
-		}
+		SpringApplication app = new SpringApplication(BerserkerApplication.class);
+		app.setWebEnvironment(false);
+		app.run(args);
 	}
 	
 	
@@ -50,8 +47,9 @@ public class DataAccessSample {
 	UserRepository userRepos;
 	
 	
+	@Override
 	@Transactional
-	public void execute() {
+	public void run(String... args) throws Exception {
 		boolean flag = userRepos.exists("yokota");
 		
 		// create

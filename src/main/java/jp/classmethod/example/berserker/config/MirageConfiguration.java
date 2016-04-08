@@ -15,7 +15,7 @@
  */
 package jp.classmethod.example.berserker.config;
 
-import jp.classmethod.example.berserker.DataAccessSample;
+import jp.classmethod.example.berserker.BerserkerApplication;
 import jp.sf.amateras.mirage.SqlManagerImpl;
 import jp.sf.amateras.mirage.bean.BeanDescFactory;
 import jp.sf.amateras.mirage.bean.FieldPropertyExtractor;
@@ -33,7 +33,7 @@ import org.springframework.data.mirage.repository.support.MiragePersistenceExcep
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
-@EnableMirageRepositories(basePackageClasses = DataAccessSample.class, sqlManagerRef = "sqlManager")
+@EnableMirageRepositories(basePackageClasses = BerserkerApplication.class, sqlManagerRef = "sqlManager")
 public class MirageConfiguration {
 	
 	@Autowired

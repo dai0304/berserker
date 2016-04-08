@@ -1,11 +1,21 @@
 // -*- coding: utf-8; mode: groovy -*-
 
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+	}
+}
+
 version = currentVersion
 group = "jp.classmethod.example"
 ext.artifactId = "berserker"
 ext.defaultEncoding = "UTF-8"
 
 apply plugin: "java"
+apply plugin: "spring-boot"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -21,10 +31,8 @@ repositories {
 
 dependencies {
 	// spring
-	compile "org.springframework:spring-context-support:$springVersion"
-	compile "org.springframework:spring-tx:$springVersion"
-	compile "org.springframework:spring-jdbc:$springVersion"
-	
+	compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+	compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
 	compile "org.springframework.data:spring-data-mirage:$springDataMirageVersion"
 	
 	// loggers
@@ -61,10 +69,4 @@ configurations.all {
 // ======== wrapper ========
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.12"
-}
-
-// ======== run ========
-task execute(type: JavaExec, dependsOn: classes) {
-	main = "jp.classmethod.example.berserker.DataAccessSample"
-	classpath = sourceSets.main.runtimeClasspath
 }
