@@ -1,5 +1,22 @@
 ext {
 	berserker = [
+		aws: [
+			profileName: "default",
+			region: "ap-northeast-1",
+	
+			cfn: [
+				templateBucket: "cf-templates-xxxxxxxxxxxxx-ap-northeast-1",
+				stackName: "berserker",
+	
+				stackParams : [
+					KeyName: "keyname",
+					CIDRPrefix: "10.241",
+					DBUsername: "root",
+					DBPassword: "passW0rd",
+					EnvironmentType: "development",
+				]
+			]
+		],
 		local: [
 			// アプリケーションがローカル環境から利用する、DBの接続情報
 			database: [

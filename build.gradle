@@ -3,9 +3,11 @@
 buildscript {
 	repositories {
 		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+		classpath "jp.classmethod.aws:gradle-aws-plugin:0.24"
 	}
 }
 
@@ -19,6 +21,9 @@ apply from: "env/${env}.gradle"
 
 apply plugin: "java"
 apply plugin: "spring-boot"
+apply plugin: "jp.classmethod.aws.s3"
+apply plugin: "jp.classmethod.aws.cloudformation"
+apply plugin: "jp.classmethod.aws.beanstalk"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -72,6 +77,72 @@ configurations.all {
 }
 
 
+//======== docker ========
+task createDockerfile(type: Copy, dependsOn: jar) {
+	from 'src/main/bundle/Dockerfile'
+	into 'build/bundle'
+	expand(jarFilename: jar.archiveName, artifactId: project.artifactId)
+}
+
+task createBundleResources(type: Copy, dependsOn: bootRepackage) {
+	from 'src/main/bundle'
+	from jar.archivePath
+	into 'build/bundle'
+	exclude 'src/main/bundle/Dockerfile'
+}
+
+//======== beanstalk bundle ========
+task createBundle(type: Zip, dependsOn: [createDockerfile, createBundleResources]) {
+	archiveName = jar.archiveName.substring(0, jar.archiveName.length() - 4) + '.zip'
+	from 'build/bundle'
+}
+
+aws {
+	profileName = berserker.aws.profileName
+	region = berserker.aws.region
+}
+
+task uploadBundle(type: jp.classmethod.aws.gradle.elasticbeanstalk.AWSElasticBeanstalkUploadBundleTask, dependsOn: createBundle) {
+	file project.createBundle.archivePath
+	overwrite project.version.endsWith('-SNAPSHOT')
+}
+
+//======== cfn ========
+cloudFormation {
+	stackName = berserker.aws.cfn.stackName
+	conventionMapping.stackParams = {
+		def stackParams = berserker.aws.cfn.stackParams
+		stackParams['BerserkerVersionLabel'] = getBerserkerVersion()
+		stackParams["SolutionStack"] = beanstalk.latestSolutionStackName("64bit Amazon Linux", "Docker")
+		getLogger().info("stackParams = {}", stackParams)
+		return stackParams
+	}
+	capabilityIam true
+	templateFile = file('src/main/cloudformation/berserker.template')
+	templateBucket = berserker.aws.cfn.templateBucket
+	templateKeyPrefix = 'berserker'
+}
+
+awsCfnMigrateStack.mustRunAfter uploadBundle
+awsCfnMigrateStack.dependsOn awsCfnUploadTemplate
+awsCfnWaitStackComplete.loopTimeout = 10800 // = 3hr
+awsCfnWaitStackDeleted.loopTimeout = 10800 // = 3hr
+
+task awsFullDeploy(dependsOn: [
+	uploadBundle,
+	awsCfnUploadTemplate,
+	awsCfnMigrateStackAndWaitCompleted
+]) {
+	group 'AWS'
+	description 'Deploys full-stack berserker environment to AWS'
+}
+
+task awsFullUndeploy(dependsOn: awsCfnDeleteStackAndWaitCompleted) {
+	group 'AWS'
+	description 'Undeploys full-stack berserker environment from AWS'
+}
+
+
 // ======== wrapper ========
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.12"
@@ -96,4 +167,8 @@ Map<String, String> getSystemProperties() {
 		prop.put('logging.config', berserker.local.logbackConfigurationFile)
 	}
 	return prop
+}
+
+String getBerserkerVersion() {
+	return uploadBundle.didWork ? uploadBundle.versionLabel : cloudFormation.getStackParameterValue("BerserkerVersion")
 }

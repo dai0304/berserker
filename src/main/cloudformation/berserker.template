@@ -1,0 +1,462 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Berserker environment template",
+  "Parameters": {
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "CIDRPrefix" : {
+      "Description" : "VPC CIDR prefix (two octets)",
+      "Type" : "String"
+    },
+    "DBUsername": {
+      "Default": "admin",
+      "Description" : "The database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+    "DBPassword" : {
+      "Description" : "Password of RDS master password",
+      "Type" : "String",
+      "NoEcho": "true",
+      "MinLength": "4"
+    },
+    "EnvironmentType" : {
+      "Default" : "development",
+      "Description" : "The environment type - production, development or local",
+      "AllowedValues": [ "production", "development", "local" ],
+      "Type" : "String",
+      "ConstraintDescription" : "must specify production, development or local."
+    },
+    "SolutionStack" : {
+      "Description" : "Solution stack name of Elastic Beanstalk",
+      "Type" : "String"
+    },
+    "BerserkerVersionLabel" : {
+      "Description" : "The version label string of berserker version.",
+      "Type" : "String"
+    }
+  },
+  "Mappings": {
+    "StackConfig" : {
+      "VPC"               : { "CIDRSuffix" : "0.0/16" },
+      "FrontendSubnet1"   : { "CIDRSuffix" : "0.0/20" },
+      "FrontendSubnet2"   : { "CIDRSuffix" : "16.0/20" },
+      "AppSubnet1"        : { "CIDRSuffix" : "64.0/20" },
+      "AppSubnet2"        : { "CIDRSuffix" : "80.0/20" },
+      "DatabaseSubnet1"   : { "CIDRSuffix" : "128.0/20" },
+      "DatabaseSubnet2"   : { "CIDRSuffix" : "144.0/20" },
+      "BerserkerServer" : { "InstanceType" : "t2.micro" },
+      "DBServer": {
+        "InstanceType" : "db.t2.micro",
+        "AlarmThreshold": "200000000000"
+      }
+    }
+  },
+  "Conditions" : {
+    "IsProduction"             : { "Fn::Equals" : [ { "Ref" : "EnvironmentType" }, "production" ] },
+    "IsProductionOrDevelopment": { "Fn::Or": [
+      { "Fn::Equals" : [ { "Ref" : "EnvironmentType" }, "production" ] },
+      { "Fn::Equals" : [ { "Ref" : "EnvironmentType" }, "development" ] }
+    ]}
+  },
+  "Resources": {
+    "BerserkerRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument" : {
+          "Statement": [ {
+            "Effect": "Allow",
+              "Principal": {
+                "Service": [ "ec2.amazonaws.com" ]
+              },
+              "Action": [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path" : "/",
+        "Policies" :[ {
+          "PolicyName" : "BerserkerPolicy",
+          "PolicyDocument" : {
+            "Statement": [
+              {
+                "Sid": "BerserkerPowerUserStmt",
+                "Effect": "Allow",
+                "NotAction": "iam:*",
+                "Resource":"*"
+              }
+            ]
+          }
+        }]
+      }
+    },
+    "BerserkerProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path": "/",
+        "Roles" : [ { "Ref" : "BerserkerRole" } ]
+      }
+    },
+
+    "VPC" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "VPC", "CIDRSuffix" ]}
+        ]]},
+        "EnableDnsSupport" : "true",
+        "EnableDnsHostnames" : "true",
+        "InstanceTenancy" : "default",
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "InternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "AttachGateway" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "InternetGatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+
+    "PublicRouteTable" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "DependsOn" : "AttachGateway",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "public" ]]} },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "PrivateRouteTable" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "private" ]]} },
+          { "Key" : "Network", "Value" : "Private" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "PublicRoute" : {
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PublicRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+
+    "FrontendSubnet1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref": "VPC" },
+        "AvailabilityZone" : { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "FrontendSubnet1", "CIDRSuffix" ]}
+        ]]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "frontend 1" ]]} },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "FrontendSubnet2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref": "VPC" },
+        "AvailabilityZone" : { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "FrontendSubnet2", "CIDRSuffix" ]}
+        ]]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "frontend 2" ]]} },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "AppSubnet1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "AppSubnet1", "CIDRSuffix" ]}
+        ]]},
+        "AvailabilityZone" : { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "application 1" ]]} },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "AppSubnet2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "AppSubnet2", "CIDRSuffix" ]}
+        ]]},
+        "AvailabilityZone" : { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "application 2" ]]} },
+          { "Key" : "Network", "Value" : "Public" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "DatabaseSubnet1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "DatabaseSubnet1", "CIDRSuffix" ]}
+        ]]},
+        "AvailabilityZone" : { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "database 1" ]]} },
+          { "Key" : "Network", "Value" : "Private" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "DatabaseSubnet2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::Join" : [ ".", [
+          { "Ref" : "CIDRPrefix" },
+          { "Fn::FindInMap" : [ "StackConfig", "DatabaseSubnet2", "CIDRSuffix" ]}
+        ]]},
+        "AvailabilityZone" : { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "Name", "Value" : { "Fn::Join" : [ " ", [ { "Ref" : "AWS::StackName" }, "database 2" ]]} },
+          { "Key" : "Network", "Value" : "Private" },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+
+    "FrontendSubnet1RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "FrontendSubnet1" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    "FrontendSubnet2RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "FrontendSubnet2" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    "AppSubnet1RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppSubnet1" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    "AppSubnet2RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppSubnet2" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    "DatabaseSubnet1RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DatabaseSubnet1" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+      }
+    },
+    "DatabaseSubnet2RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DatabaseSubnet2" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+      }
+    },
+
+
+    "DBParamGroup" : {
+      "Type": "AWS::RDS::DBParameterGroup",
+      "Properties" : {
+        "Description" : "Default parameter group for Portnoy",
+        "Family" : "MySQL5.6",
+        "Parameters" : {
+          "character_set_database" : "utf8mb4",
+          "character_set_client" : "utf8mb4",
+          "character_set_connection" : "utf8mb4",
+          "character_set_results" : "utf8mb4",
+          "character_set_server" : "utf8mb4",
+          "sort_buffer_size" : "2097152",
+          "log_bin_trust_function_creators" : "1",
+          "general_log" : "1",
+          "log_output" : "FILE",
+          "slow_query_log" : "1",
+          "long_query_time" : "1"
+        },
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "DBSubnetGroup" : {
+      "Type" : "AWS::RDS::DBSubnetGroup",
+      "Properties" : {
+        "DBSubnetGroupDescription" : "Database subnets for RDS",
+        "SubnetIds" : [
+          { "Ref": "DatabaseSubnet1" },
+          { "Ref": "DatabaseSubnet2" }
+        ],
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+    "DBInstance" : {
+      "Type" : "AWS::RDS::DBInstance",
+      "Condition" : "IsProductionOrDevelopment",
+      "DeletionPolicy" : "Snapshot",
+      "Properties" : {
+        "DBInstanceClass" : { "Fn::FindInMap" : [ "StackConfig", "DBServer",  "InstanceType" ]},
+        "AllocatedStorage" : "5",
+        "StorageType" : "gp2",
+        "Engine" : "MySQL",
+        "MultiAZ" : { "Fn::If" : [ "IsProduction", "true", "false" ]},
+        "EngineVersion" : "5.6.21",
+        "MasterUsername" : { "Ref" : "DBUsername" },
+        "MasterUserPassword" : { "Ref" : "DBPassword" },
+        "DBName": "berserker",
+        "BackupRetentionPeriod" : "3",
+        "DBParameterGroupName" : { "Ref" : "DBParamGroup" },
+        "DBSubnetGroupName" : { "Ref" : "DBSubnetGroup" },
+        "PreferredBackupWindow": "19:30-20:00",
+        "PreferredMaintenanceWindow": "sat:00:00-sat:00:30",
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    },
+
+    "BerserkerApplication" : {
+      "Type" : "AWS::ElasticBeanstalk::Application",
+      "Condition" : "IsProductionOrDevelopment",
+      "Properties" : {
+        "Description" : { "Fn::Join" : [ "", [ { "Ref" : "AWS::StackName" }, " berserker application." ]]}
+      }
+    },
+    "BerserkerAppVersion" : {
+      "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
+      "Condition" : "IsProductionOrDevelopment",
+      "Properties" : {
+        "ApplicationName" : { "Ref" : "BerserkerApplication" },
+        "Description" : { "Ref" : "BerserkerVersionLabel" },
+        "SourceBundle" : {
+          "S3Bucket" : { "Fn::Join" : [ "-", [ "elasticbeanstalk", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" } ]]},
+          "S3Key" : { "Fn::Join" : [ "", [ "eb-apps/berserker/berserker-", { "Ref" : "BerserkerVersionLabel" }, ".zip" ]]}
+        }
+      }
+    },
+    "BerserkerEnvironment" : {
+      "Type" : "AWS::ElasticBeanstalk::Environment",
+      "Condition" : "IsProductionOrDevelopment",
+      "DependsOn" : "AttachGateway",
+      "Properties" : {
+        "ApplicationName" : { "Ref" : "BerserkerApplication" },
+        "Description" : "Berserker environment",
+        "Tier" : { "Name" : "WebServer", "Type" : "Standard", "Version" : "1.0" },
+        "VersionLabel" : { "Ref" : "BerserkerAppVersion" },
+        "SolutionStackName" : { "Ref" : "SolutionStack" },
+        "OptionSettings" : [
+          { "Namespace" : "aws:ec2:vpc", "OptionName" : "VPCId", "Value" : { "Ref" : "VPC" } },
+          { "Namespace" : "aws:ec2:vpc", "OptionName" : "Subnets", "Value" : { "Fn::Join" : [ ",", [ { "Ref" : "AppSubnet1" }, { "Ref" : "AppSubnet2" } ]]}},
+          { "Namespace" : "aws:ec2:vpc", "OptionName" : "ELBSubnets", "Value" : { "Fn::Join" : [ ",", [ { "Ref" : "FrontendSubnet1" }, { "Ref" : "FrontendSubnet2" } ]]}},
+          { "Namespace" : "aws:ec2:vpc", "OptionName" : "AssociatePublicIpAddress", "Value" : "true" },
+          
+          { "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "InstanceType", "Value" : { "Fn::FindInMap" : [ "StackConfig", "BerserkerServer", "InstanceType" ]} },
+          { "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "EC2KeyName", "Value" : { "Ref" : "KeyName" }},
+          { "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "IamInstanceProfile", "Value" : { "Ref" : "BerserkerProfile" }},
+          { "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "SecurityGroups", "Value" : { "Fn::GetAtt" : [ "VPC", "DefaultSecurityGroup" ] }},
+          { "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "SSHSourceRestriction", "Value" : { "Fn::If" : [ "IsProduction",
+            "tcp,22,22,10.0.0.0/8",
+            "tcp,22,22,0.0.0.0/0"
+          ]}},
+          
+          { "Namespace" : "aws:elasticbeanstalk:application", "OptionName" : "Application Healthcheck URL", "Value" : "/health" },
+          { "Namespace" : "aws:elasticbeanstalk:application:environment", "OptionName" : "JDBC_CONNECTION_STRING", "Value" : { "Fn::Join" : [ "", [
+            "jdbc:mysql://",
+            { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ] }, ":",
+            { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ] }, "/berserker"
+          ]]}},
+          { "Namespace" : "aws:elasticbeanstalk:application:environment", "OptionName" : "DB_USERNAME", "Value" : { "Ref" : "DBUsername" } },
+          { "Namespace" : "aws:elasticbeanstalk:application:environment", "OptionName" : "DB_PASSWORD", "Value" : { "Ref" : "DBPassword" } },
+          { "Namespace" : "aws:elasticbeanstalk:application:environment", "OptionName" : "SPRING_PROFILES_ACTIVE", "Value" : { "Fn::Join": [ ",", [
+            { "Ref" : "EnvironmentType" }, "aws"
+          ]]}}
+        ],
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+          { "Key" : "CmBillingGroup", "Value" : "Berserker" }
+        ]
+      }
+    }
+  },
+  "Outputs" : {
+    "BerserkerEnvironmentEndpoint" : {
+      "Condition" : "IsProductionOrDevelopment",
+      "Description" : "hostname to access berserker",
+      "Value" : { "Fn::Join" : [ "", [
+        "http://",
+        { "Fn::GetAtt" : [ "BerserkerEnvironment", "EndpointURL" ]},
+        "/"
+      ]]}
+    }
+  }
+}

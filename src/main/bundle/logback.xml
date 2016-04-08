@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<configuration scan="true" scanPeriod="30 seconds">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <Target>System.out</Target>
+    <withJansi>true</withJansi>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{ISO8601,JST} [%.16thread] %-5level %logger{36}:%line - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- ======== Root Logger ======== -->
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
