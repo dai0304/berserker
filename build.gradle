@@ -1,5 +1,12 @@
 // -*- coding: utf-8; mode: groovy -*-
 
+version = currentVersion
+
+apply plugin: "java"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 // ======== wrapper ========
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.12"
