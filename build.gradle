@@ -16,6 +16,7 @@ tasks.withType(AbstractCompile) each {
 // ======== libraries ========
 repositories {
 	mavenCentral()
+	maven { url "http://maven.xet.jp/release" } // for spring-data-mirage
 }
 
 dependencies {
@@ -23,6 +24,8 @@ dependencies {
 	compile "org.springframework:spring-context-support:$springVersion"
 	compile "org.springframework:spring-tx:$springVersion"
 	compile "org.springframework:spring-jdbc:$springVersion"
+	
+	compile "org.springframework.data:spring-data-mirage:$springDataMirageVersion"
 	
 	// loggers
 	compile "org.slf4j:slf4j-api:$slf4jVersion"

@@ -17,7 +17,6 @@ package jp.classmethod.example.berserker.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -39,10 +38,5 @@ public class DataSourceConfiguration {
 	@Bean
 	public DataSourceTransactionManager transactionManager() {
 		return new DataSourceTransactionManager(dataSource());
-	}
-	
-	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(dataSource());
 	}
 }

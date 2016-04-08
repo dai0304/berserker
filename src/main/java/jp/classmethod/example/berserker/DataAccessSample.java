@@ -15,10 +15,8 @@
  */
 package jp.classmethod.example.berserker;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import jp.classmethod.example.berserker.model.User;
+import jp.classmethod.example.berserker.model.UserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,31 +43,43 @@ public class DataAccessSample {
 	
 	
 	@Autowired
-	JdbcTemplate jdbcTemplate;
+	UserRepository userRepos;
 	
 	
 	@Transactional
 	public void execute() {
-		Long allUsersCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Long.class);
-		logger.info("allUsersCount = {}", allUsersCount);
+		boolean flag = userRepos.exists("yokota");
 		
-		String password = jdbcTemplate.queryForObject("SELECT password FROM users WHERE username = ?", new Object[] {
-				"miyamoto"
-		}, String.class);
-		logger.info("password = {}", password);
+		// create
+		logger.info("Create user");
+		if (flag) {
+			userRepos.save(new User("watanabe", "$2a$10$MHPqWJ61alnBlUbvjEGK/uWRvwtYzolWCuFXW8YMJkT54HUB0H9iq"));
+		} else {
+			userRepos.save(new User("yokota", "$2a$10$nkvNPCb3Y1z/GSearD7s7OBdS9BoLBss3D4enbFQIgNJDvr0Xincm"));
+		}
 		
-		User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE username = ?", new Object[] {
-				"miyamoto"
-		}, new RowMapper<User>() {
-			
-			@Override
-			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-				User user = new User();
-				user.setUsername(rs.getString("username"));
-				user.setPassword(rs.getString("password"));
-				return user;
-			}
-		});
-		logger.info("user = {}", user);
+		// read
+		logger.info("List user");
+		Iterable<User> all = userRepos.findAll();
+		for (User user : all) {
+			logger.info("  {}", user);
+		}
+		
+		logger.info("Get user");
+		User miyamoto = userRepos.findOne("miyamoto");
+		logger.info("  {}", miyamoto);
+		
+		// update
+		logger.info("Update user");
+		miyamoto.setPassword("$2a$10$vxq4n5VB4bsgUlBK9DXV9edhX911Qz/5iYqjLi/6qZPp8Xl7ZACKC");
+		userRepos.save(miyamoto);
+		
+		// delete
+		logger.info("Delete user");
+		if (flag) {
+			userRepos.delete("yokota");
+		} else {
+			userRepos.delete("watanabe");
+		}
 	}
 }

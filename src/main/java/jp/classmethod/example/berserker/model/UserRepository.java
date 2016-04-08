@@ -15,32 +15,7 @@
  */
 package jp.classmethod.example.berserker.model;
 
-import jp.sf.amateras.mirage.annotation.Column;
-import jp.sf.amateras.mirage.annotation.PrimaryKey;
-import jp.sf.amateras.mirage.annotation.PrimaryKey.GenerationType;
-import jp.sf.amateras.mirage.annotation.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import org.springframework.data.mirage.repository.MirageRepository;
 
-import org.springframework.data.annotation.Id;
-
-@ToString
-@Table(name = "users")
-@AllArgsConstructor
-public class User {
-	
-	@Getter
-	@Setter
-	@Id
-	@PrimaryKey(generationType = GenerationType.APPLICATION)
-	@Column(name = "username")
-	private String username;
-	
-	@Getter
-	@Setter
-	@Column(name = "password")
-	private String password;
-	
+public interface UserRepository extends MirageRepository<User, String> {
 }
