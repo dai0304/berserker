@@ -21,6 +21,8 @@ repositories {
 dependencies {
 	// spring
 	compile "org.springframework:spring-context-support:$springVersion"
+	compile "org.springframework:spring-tx:$springVersion"
+	compile "org.springframework:spring-jdbc:$springVersion"
 	
 	// loggers
 	compile "org.slf4j:slf4j-api:$slf4jVersion"
@@ -30,6 +32,7 @@ dependencies {
 	// other
 	compile "org.projectlombok:lombok:$lombokVersion"
 	compile "javax.mail:mail:$javaMailVersion"
+	compile "mysql:mysql-connector-java:$mysqlVersion"
 	compile "com.amazonaws:aws-java-sdk-sqs:$awsJavaSdkVersion"
 	
 	// testing
