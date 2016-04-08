@@ -19,13 +19,19 @@ import jp.classmethod.example.berserker.config.AppConfig;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SpringMain {
 	
 	public static void main(String[] args) {
 		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			SpringQueueWorker main = context.getBean(SpringQueueWorker.class);
+			SpringMain main = context.getBean(SpringMain.class);
 			main.execute();
 		}
+	}
+	
+	private void execute() {
+		// TODO Auto-generated method stub
 	}
 }

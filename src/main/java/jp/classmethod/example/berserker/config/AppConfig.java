@@ -29,16 +29,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @ComponentScan("jp.classmethod.example.berserker")
 public class AppConfig {
 	
-// ComponentScanとAutowiredによって、この記述は不要になる
-//  @Bean
-//  public SpringQueueWorker worker() {
-//    SpringQueueWorker worker = new SpringQueueWorker();
-//    worker.setSqs(amazonSQSClient());
-//    worker.setMailSender(javaMailSenderImpl());
-//    worker.setMailTemplate(templateMessage());
-//    return worker;
-//  }
-	
 	@Bean
 	public AmazonSQSClient amazonSQSClient() {
 		return new AmazonSQSClient(credentialsProvider());
