@@ -1,0 +1,16 @@
+ext {
+	berserker = [
+		local: [
+			// アプリケーションがローカル環境から利用する、DBの接続情報
+			database: [
+				connectionString: "jdbc:mysql://localhost:3306/berserker?useLegacyDatetimeCode=false&serverTimezone=Universal",
+				user: "root",
+				password: ""
+			],
+			// アプリケーションがローカルで起動する際の Spring profile名
+			springProfile: "development,local",
+			// アプリケーションがローカルで起動する際の logback 設定ファイル
+			logbackConfigurationFile: "/path/to/berserker.xml"
+		]
+	]
+}
