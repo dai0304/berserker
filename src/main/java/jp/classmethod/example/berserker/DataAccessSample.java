@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Classmethod, Inc..
+ * Copyright 2013-2016 Classmethod, Inc..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,32 @@
  */
 package jp.classmethod.example.berserker;
 
-import jp.classmethod.example.berserker.config.AppConfig;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class SpringMain {
+@ComponentScan
+public class DataAccessSample {
 	
 	public static void main(String[] args) {
-		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			SpringMain main = context.getBean(SpringMain.class);
-			main.execute();
+		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(DataAccessSample.class)) {
+			DataAccessSample das = context.getBean(DataAccessSample.class);
+			das.execute();
 		}
 	}
 	
-	private void execute() {
-		// TODO Auto-generated method stub
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+	
+	
+	@Transactional
+	public void execute() {
+		// do some work
 	}
 }

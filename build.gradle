@@ -62,6 +62,6 @@ task wrapper(type: Wrapper) {
 
 // ======== run ========
 task execute(type: JavaExec, dependsOn: classes) {
-	main = "jp.classmethod.example.berserker.SpringMain"
+	main = "jp.classmethod.example.berserker.DataAccessSample"
 	classpath = sourceSets.main.runtimeClasspath
 }
