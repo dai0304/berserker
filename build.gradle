@@ -1,11 +1,17 @@
 // -*- coding: utf-8; mode: groovy -*-
 
 version = currentVersion
+group = "jp.classmethod.example"
+ext.artifactId = "berserker"
+ext.defaultEncoding = "UTF-8"
 
 apply plugin: "java"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+tasks.withType(AbstractCompile) each {
+	it.options.encoding = ext.defaultEncoding
+}
 
 // ======== libraries ========
 repositories {
@@ -16,11 +22,35 @@ dependencies {
 	// spring
 	compile "org.springframework:spring-context-support:$springVersion"
 	
+	// loggers
+	compile "org.slf4j:slf4j-api:$slf4jVersion"
+	compile "org.slf4j:jul-to-slf4j:$slf4jVersion"
+	compile "ch.qos.logback:logback-classic:$logbackVersion"
+
 	// other
 	compile "org.projectlombok:lombok:$lombokVersion"
 	compile "javax.mail:mail:$javaMailVersion"
 	compile "com.amazonaws:aws-java-sdk-sqs:$awsJavaSdkVersion"
+	
+	// testing
+	testCompile "junit:junit:$junitVersion"
+	testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+	testCompile "org.mockito:mockito-core:$mockitoCoreVersion"
 }
+
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.name == "commons-logging") {
+			// prefer "jcl-over-slf4j" over "commons-logging":
+			details.useTarget "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+		}
+		if (details.requested.name == "log4j") {
+			// prefer "log4j-over-slf4j" over "log4j":
+			details.useTarget "org.slf4j:log4j-over-slf4j:$slf4jVersion"
+		}
+	}
+}
+
 
 // ======== wrapper ========
 task wrapper(type: Wrapper) {
