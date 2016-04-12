@@ -20,9 +20,8 @@ import java.util.stream.StreamSupport;
 
 import jp.classmethod.example.berserker.model.User;
 import jp.classmethod.example.berserker.model.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,10 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
+@Slf4j
 public class BerserkerApplication {
-	
-	private static Logger logger = LoggerFactory.getLogger(BerserkerApplication.class);
-	
 	
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(BerserkerApplication.class);
@@ -52,7 +49,7 @@ public class BerserkerApplication {
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@Transactional
 	public ResponseEntity<String> index() {
-		logger.debug("index");
+		log.debug("index");
 		Iterable<User> users = userRepos.findAll();
 		String result = StreamSupport.stream(users.spliterator(), false)
 			.map(Object::toString)
