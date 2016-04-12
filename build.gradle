@@ -51,7 +51,7 @@ dependencies {
 	compile "ch.qos.logback:logback-classic:$logbackVersion"
 
 	// other
-	compile "org.projectlombok:lombok:$lombokVersion"
+	compileOnly "org.projectlombok:lombok:$lombokVersion"
 	compile "javax.mail:mail:$javaMailVersion"
 	compile "mysql:mysql-connector-java:$mysqlVersion"
 	compile "org.flywaydb:flyway-core:$flywayVersion"
