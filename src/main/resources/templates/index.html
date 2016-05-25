@@ -7,5 +7,9 @@
 </head>
 <body>
   <p>Hello, berserker!</p>
+  <p>Now <span th:text="${now}">foobar</span></p>
+  <ul>
+    <li th:each="user : ${users}" th:text="${user.username}">bazqux</li>
+  </ul>
 </body>
 </html>

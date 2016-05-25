@@ -15,6 +15,7 @@
  */
 package jp.classmethod.example.berserker.web;
 
+import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -46,8 +48,11 @@ public class RootController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@Transactional
-	public String index() {
+	public String index(Model model) {
 		log.debug("index");
+		Iterable<User> users = userRepos.findAll();
+		model.addAttribute("now", new Date().toString());
+		model.addAttribute("users", users);
 		return "index";
 	}
 	
