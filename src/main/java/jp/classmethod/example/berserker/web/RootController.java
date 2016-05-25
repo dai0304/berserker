@@ -44,10 +44,10 @@ public class RootController {
 	UserRepository userRepos;
 	
 	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	@Transactional
 	@ResponseBody
-	public ResponseEntity<String> index() {
+	public ResponseEntity<String> users() {
 		log.debug("index");
 		Iterable<User> users = userRepos.findAll();
 		String result = StreamSupport.stream(users.spliterator(), false)
