@@ -24,10 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Spring MVC Controller.
@@ -36,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author daisuke
  */
 @Slf4j
-@RestController
+@Controller
 public class RootController {
 	
 	@Autowired
@@ -45,6 +46,7 @@ public class RootController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@Transactional
+	@ResponseBody
 	public ResponseEntity<String> index() {
 		log.debug("index");
 		Iterable<User> users = userRepos.findAll();
