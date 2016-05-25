@@ -58,7 +58,7 @@ public class RootController {
 	@Transactional
 	@ResponseBody
 	public ResponseEntity<?> users() {
-		log.debug("index");
+		log.debug("users");
 		Iterable<User> users = userRepos.findAll();
 		return ResponseEntity.ok(users);
 	}
