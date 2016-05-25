@@ -37,8 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BerserkerApplication {
 	
 	public static void main(String[] args) {
-		SpringApplication app = new SpringApplication(BerserkerApplication.class);
-		app.run(args);
+		SpringApplication.run(BerserkerApplication.class, args);
 	}
 	
 	
