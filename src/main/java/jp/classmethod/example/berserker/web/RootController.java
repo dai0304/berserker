@@ -44,6 +44,13 @@ public class RootController {
 	UserRepository userRepos;
 	
 	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@Transactional
+	public String index() {
+		log.debug("index");
+		return "index";
+	}
+	
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	@Transactional
 	@ResponseBody
