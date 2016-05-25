@@ -24,6 +24,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.data.annotation.Id;
 
 @ToString
@@ -41,6 +43,7 @@ public class User {
 	@Getter
 	@Setter
 	@Column(name = "password")
+	@JsonIgnore
 	private String password;
 	
 }
