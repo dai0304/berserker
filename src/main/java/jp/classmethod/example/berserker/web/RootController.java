@@ -16,8 +16,6 @@
 package jp.classmethod.example.berserker.web;
 
 import java.util.Date;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import jp.classmethod.example.berserker.model.User;
 import jp.classmethod.example.berserker.model.UserRepository;
@@ -59,12 +57,9 @@ public class RootController {
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	@Transactional
 	@ResponseBody
-	public ResponseEntity<String> users() {
+	public ResponseEntity<?> users() {
 		log.debug("index");
 		Iterable<User> users = userRepos.findAll();
-		String result = StreamSupport.stream(users.spliterator(), false)
-			.map(Object::toString)
-			.collect(Collectors.joining(","));
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(users);
 	}
 }
