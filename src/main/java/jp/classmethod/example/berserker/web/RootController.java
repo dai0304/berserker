@@ -62,4 +62,16 @@ public class RootController {
 		Iterable<User> users = userRepos.findAll();
 		return ResponseEntity.ok(users);
 	}
+	
+	@RequestMapping(value = "/public", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> publicResource() {
+		return ResponseEntity.ok("public");
+	}
+	
+	@RequestMapping(value = "/admin", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> adminResource() {
+		return ResponseEntity.ok("admin");
+	}
 }
