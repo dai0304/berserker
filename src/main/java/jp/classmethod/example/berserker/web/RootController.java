@@ -15,20 +15,17 @@
  */
 package jp.classmethod.example.berserker.web;
 
-import java.util.Date;
-
 import jp.classmethod.example.berserker.model.User;
 import jp.classmethod.example.berserker.model.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Spring MVC Controller.
@@ -37,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author daisuke
  */
 @Slf4j
-@Controller
+@RestController
 public class RootController {
 	
 	@Autowired
@@ -45,18 +42,13 @@ public class RootController {
 	
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	@Transactional
-	public String index(Model model) {
+	public ResponseEntity<?> index(Model model) {
 		log.debug("index");
-		Iterable<User> users = userRepos.findAll();
-		model.addAttribute("now", new Date().toString());
-		model.addAttribute("users", users);
-		return "index";
+		return ResponseEntity.ok("index");
 	}
 	
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	@Transactional
-	@ResponseBody
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public ResponseEntity<?> users() {
 		log.debug("users");
 		Iterable<User> users = userRepos.findAll();
@@ -64,13 +56,11 @@ public class RootController {
 	}
 	
 	@RequestMapping(value = "/public", method = RequestMethod.GET)
-	@ResponseBody
 	public ResponseEntity<?> publicResource() {
 		return ResponseEntity.ok("public");
 	}
 	
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
-	@ResponseBody
 	public ResponseEntity<?> adminResource() {
 		return ResponseEntity.ok("admin");
 	}

@@ -42,7 +42,7 @@ public class BerserkerWebSecurityConfiguration extends WebSecurityConfigurerAdap
 			.antMatchers("/admin").hasAuthority("ROLE_ADMIN")
 			.anyRequest().authenticated();
 		
-		http.formLogin();
+		http.httpBasic();
 	}
 	
 	@Override
