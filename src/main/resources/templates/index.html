@@ -11,5 +11,9 @@
   <ul>
     <li th:each="user : ${users}" th:text="${user.username}">bazqux</li>
   </ul>
+  <form action="/logout" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit">Logout</button>
+  </form>
 </body>
 </html>
